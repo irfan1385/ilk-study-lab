@@ -1453,21 +1453,31 @@ function revisionsDue(){
 /* ---------- ROUTER ---------- */
 const ROUTES=[];
 function route(path, fn){ ROUTES.push({re:new RegExp("^"+path.replace(/:[^/]+/g,"([^/]+)")+"$"), fn, parts:path.split("/").filter(p=>p.startsWith(":")).map(p=>p.slice(1))}); }
-function nav(path){ location.hash = "#"+path; }
+function nav(path){
+  // Browsers fire no hashchange when the target equals the current hash,
+  // so same-screen navigation must re-render explicitly.
+  if(("#"+path) === location.hash){ render(); }
+  else { location.hash = "#"+path; }
+}
 window.addEventListener("hashchange", render);
 function render(){
   const path = (location.hash||"#/home").slice(1).replace(/\/$/,"") || "/home";
   closeSheet();
-  let matched=false;
+  const hits=[];
   for(const r of ROUTES){
     const m = path.match(r.re);
-    if(m){
-      const args={}; r.parts.forEach((p,i)=>args[p]=decodeURIComponent(m[i+1]));
-      try{ r.fn(args); }catch(err){ console.error(err); $("#view").innerHTML='<div class="empty"><div class="e-ico">⚠️</div>Something went wrong rendering this screen.</div>'; }
-      matched=true; break;
-    }
+    if(m) hits.push({r, m});
   }
-  if(!matched) $("#view").innerHTML='<div class="empty"><div class="e-ico">🧭</div>Page not found.</div>';
+  // Exact (no-parameter) routes always win over parameterised ones,
+  // regardless of registration order — e.g. "/solve/session" must beat
+  // "/solve/:ch", or the solving screen would bounce back to the chapter list.
+  const chosen = hits.find(h=>h.r.parts.length===0) || hits[0];
+  if(chosen){
+    const args={}; chosen.r.parts.forEach((p,i)=>args[p]=decodeURIComponent(chosen.m[i+1]));
+    try{ chosen.r.fn(args); }catch(err){ console.error(err); $("#view").innerHTML='<div class="empty"><div class="e-ico">⚠️</div>Something went wrong rendering this screen.</div>'; }
+  } else {
+    $("#view").innerHTML='<div class="empty"><div class="e-ico">🧭</div>Page not found.</div>';
+  }
   window.scrollTo(0,0);
   $$(".nav-item").forEach(n=>n.classList.toggle("active", path.startsWith("/"+n.dataset.nav)));
   const mainTab = path.split("/")[1];
@@ -1881,7 +1891,6 @@ function showSolution(correct, wasWrong){
 function nextSolveQ(){
   SOLVE.i++; SOLVE.hints=0;
   nav("/solve/session");
-  if(SOLVE.i>=SOLVE.ids.length){ solveSummary(); }
 }
 function solveSummary(){
   const c=chapOf(SOLVE.ch);
