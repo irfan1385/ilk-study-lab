@@ -6,7 +6,7 @@ A premium Class 10 (CBSE 2025-26) board + NEET-foundation learning system — a 
 
 ## Use it
 
-Open the GitHub Pages site on any device: add it to your home screen and it installs as a full offline-capable app.
+Open the GitHub Pages site on any device. Add it to your home screen and it installs as a full offline-capable app.
 
 ## What's inside
 
@@ -25,10 +25,12 @@ All progress is stored locally in your browser (localStorage) — nothing leaves
 
 ## Architecture
 
-- `index.html` — a tiny loader that fetches the app bundle and renders it
-- `app.html` (release asset) — the full single-file app, hosted as a [release asset](https://github.com/irfan1385/ilk-study-lab/releases/latest/) so it can be updated without touching the site shell
-- `sw.js` — service worker caching the shell (cache-first) and app bundle (stale-while-revalidate)
+- `index.html` — tiny loader that fetches `app.html` and renders it
+- `app.html` — the full single-file app, committed to the repo by the [sync workflow](.github/workflows/sync-app.yml) from the [latest release asset](https://github.com/irfan1385/ilk-study-lab/releases/latest/), so the app always loads same-origin
+- `sw.js` — service worker: cache-first for the shell, stale-while-revalidate for the app bundle
 - `manifest.webmanifest` + `icon.svg` — installable PWA metadata
+
+To ship a new version: upload `app.html` to a new GitHub release → the workflow syncs it into the repo → Pages redeploys.
 
 ## Tech
 

@@ -1,17 +1,13 @@
 // ILK Study Lab — service worker
-// Caches the site shell (loader/manifest/icon) and the app bundle from the release asset.
-// Shell: cache-first. App bundle: stale-while-revalidate so updates arrive without breaking offline.
-var CACHE = "ilk-site-v1";
-var APP_URLS = [
-  "https://github.com/irfan1385/ilk-study-lab/releases/latest/download/app.html",
-  "https://github.com/irfan1385/ilk-study-lab/releases/download/v1.0.0/app.html"
-];
+// Shell: cache-first. App bundle (app.html): stale-while-revalidate, so updates land without breaking offline.
+var CACHE = "ilk-site-v2";
+var SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./app.html"];
 
 self.addEventListener("install", function(e){
   e.waitUntil(
-    caches.open(CACHE)
-      .then(function(c){ return c.addAll(["./", "./index.html", "./manifest.webmanifest", "./icon.svg"]); })
-      .catch(function(){})
+    caches.open(CACHE).then(function(c){
+      return Promise.all(SHELL.map(function(u){ return c.add(u).catch(function(){}); }));
+    })
   );
   self.skipWaiting();
 });
@@ -27,8 +23,7 @@ self.addEventListener("activate", function(e){
 
 self.addEventListener("fetch", function(e){
   if(e.request.method !== "GET") return;
-  var url = e.request.url;
-  var isApp = APP_URLS.indexOf(url) > -1;
+  var isApp = e.request.url.indexOf("/app.html") > -1;
   e.respondWith(
     caches.match(e.request, {ignoreSearch:true}).then(function(hit){
       if(hit && !isApp) return hit;

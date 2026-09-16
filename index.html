@@ -28,28 +28,21 @@ a{color:#7b7ff0}
   <noscript><p style="margin-top:16px">ILK Study Lab needs JavaScript to run.</p></noscript>
 </div>
 <script>
-var APP_URLS = [
-  "https://github.com/irfan1385/ilk-study-lab/releases/latest/download/app.html",
-  "https://github.com/irfan1385/ilk-study-lab/releases/download/v1.0.0/app.html"
-];
-function fail(){
-  document.body.innerHTML = '<div><div class="logo">ILK</div>' +
-    '<p style="max-width:280px;line-height:1.6;color:#a7acc2">Could not load the app bundle.<br>Check your connection and refresh.</p>' +
-    '<p style="margin-top:14px"><a href="https://github.com/irfan1385/ilk-study-lab/releases/latest/">Download the app file directly</a></p></div>';
-}
 (function(){
-  var i = 0;
-  function next(){
-    if(i >= APP_URLS.length){ fail(); return; }
-    fetch(APP_URLS[i++])
-      .then(function(r){ if(!r.ok) throw 0; return r.text(); })
-      .then(function(html){
-        if(!html || html.length < 1000) throw 0;
-        document.open(); document.write(html); document.close();
-      })
-      .catch(next);
-  }
-  next();
+  fetch("app.html")
+    .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+    .then(function(html){
+      if(!html || html.length < 1000) throw 0;
+      document.open(); document.write(html); document.close();
+    })
+    .catch(function(){
+      var msg = (navigator.onLine === false)
+        ? "You are offline. Reconnect once so the app can cache, or use your installed copy."
+        : "Could not load the app bundle. Check your connection and refresh.";
+      document.body.innerHTML = '<div><div class="logo">ILK</div>' +
+        '<p style="max-width:280px;line-height:1.6;color:#a7acc2">' + msg + '</p>' +
+        '<p style="margin-top:14px"><a href="https://github.com/irfan1385/ilk-study-lab/releases/latest/">Download the app file directly</a></p></div>';
+    });
 })();
 if("serviceWorker" in navigator && location.protocol === "https:"){
   window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
