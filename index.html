@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ILK Study Lab</title>
+<meta name="theme-color" content="#5b5bd6">
+<meta name="description" content="ILK Study Lab — Understand deeply. Solve intelligently. Revise efficiently. Class 10 board + competitive foundation learning system.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+html,body{margin:0;height:100%}
+body{display:grid;place-items:center;background:#0f1118;color:#e9eaf2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;text-align:center}
+.logo{width:84px;height:84px;border-radius:22px;background:linear-gradient(135deg,#5457c8,#6d5bd8);display:grid;place-items:center;font-size:1.6rem;font-weight:800;color:#fff;margin:0 auto 18px;animation:pop .6s ease}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.tag{font-size:.9rem;color:#a7acc2;max-width:260px;line-height:1.5;margin:0 auto 26px}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid #262b3b;border-top-color:#7b7ff0;margin:0 auto;animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+a{color:#7b7ff0}
+</style>
+</head>
+<body>
+<div>
+  <div class="logo">ILK</div>
+  <div class="tag">Understand deeply. Solve intelligently. Revise efficiently.</div>
+  <div class="spin" aria-label="Loading"></div>
+  <noscript><p style="margin-top:16px">ILK Study Lab needs JavaScript to run.</p></noscript>
+</div>
+<script>
+var APP_URLS = [
+  "https://github.com/irfan1385/ilk-study-lab/releases/latest/download/app.html",
+  "https://github.com/irfan1385/ilk-study-lab/releases/download/v1.0.0/app.html"
+];
+function fail(){
+  document.body.innerHTML = '<div><div class="logo">ILK</div>' +
+    '<p style="max-width:280px;line-height:1.6;color:#a7acc2">Could not load the app bundle.<br>Check your connection and refresh.</p>' +
+    '<p style="margin-top:14px"><a href="https://github.com/irfan1385/ilk-study-lab/releases/latest/">Download the app file directly</a></p></div>';
+}
+(function(){
+  var i = 0;
+  function next(){
+    if(i >= APP_URLS.length){ fail(); return; }
+    fetch(APP_URLS[i++])
+      .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+      .then(function(html){
+        if(!html || html.length < 1000) throw 0;
+        document.open(); document.write(html); document.close();
+      })
+      .catch(next);
+  }
+  next();
+})();
+if("serviceWorker" in navigator && location.protocol === "https:"){
+  window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+}
+</script>
+</body>
+</html>
